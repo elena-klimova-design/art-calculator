@@ -216,11 +216,13 @@
         .btn-primary {
             background: linear-gradient(135deg, #c9a84c 0%, #e2c76a 100%);
             color: #0b0f19; font-weight: 600;
-            padding: 15px 40px; border-radius: 50px; border: none;
+            padding: 15px 20px; border-radius: 50px; border: none; /* Уменьшили боковой padding, так как теперь есть min-width */
+            min-width: 200px; /* ЖЕСТКАЯ ОДИНАКОВАЯ ШИРИНА ДЛЯ СИММЕТРИИ */
             cursor: pointer; font-family: 'Raleway', sans-serif;
             font-size: 15px; transition: all 0.3s ease;
             letter-spacing: 0.8px; text-transform: uppercase;
             position: relative; overflow: hidden;
+            text-align: center;
         }
 
         .btn-primary::after {
@@ -236,16 +238,17 @@
 
         .btn-secondary {
             background: transparent; color: var(--accent); font-weight: 500;
-            padding: 15px 36px; border-radius: 50px;
+            padding: 15px 20px; border-radius: 50px; /* Уменьшили боковой padding */
+            min-width: 200px; /* ЖЕСТКАЯ ОДИНАКОВАЯ ШИРИНА ДЛЯ СИММЕТРИИ */
             border: 1px solid rgba(201, 168, 76, 0.4);
             cursor: pointer; font-family: 'Raleway', sans-serif;
             font-size: 15px; transition: all 0.3s ease;
             letter-spacing: 0.8px; text-transform: uppercase;
+            text-align: center;
         }
 
         .btn-secondary:hover { background: rgba(201, 168, 76, 0.08); border-color: var(--accent); transform: translateY(-2px); }
         .btn-secondary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-
         .order-link {
             display: flex; align-items: center; gap: 14px;
             padding: 18px 24px;
@@ -402,16 +405,23 @@
                         </div>
                     </div>
 
-                    <div class="mb-8">
-                        <label class="block text-[11px] text-cream-400 font-400 mb-3 tracking-[0.15em] uppercase">Глубина рельефа</label>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="reliefContainer"></div>
-                    </div>
 
-                    <div class="flex flex-col sm:flex-row gap-3 justify-center mb-7">
-                        <button class="btn-primary" id="calcBtn">Рассчитать</button>
-                        <button class="btn-secondary" id="resetBtn">Обновить</button>
-                    </div>
+                 <div class="max-w-[700px] w-full mx-auto">
+    
+    <div class="mb-8">
+        <label class="block text-[11px] text-cream-400 font-400 mb-3 tracking-[0.15em] uppercase text-left">
+            Глубина рельефа
+        </label>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="reliefContainer"></div>
+    </div>
 
+    <!-- Кнопки теперь тоже будут ориентироваться на ширину контейнера и встанут ровно по центру -->
+    <div class="flex flex-col sm:flex-row gap-3 justify-center items-center mb-7 w-full mx-auto">
+        <button class="btn-primary w-full sm:w-auto" id="calcBtn">Рассчитать</button>
+        <button class="btn-secondary w-full sm:w-auto" id="resetBtn">Обновить</button>
+    </div>
+
+</div>
                     <div class="result-box" id="resultBox" role="status" aria-live="polite">
                         <p class="text-sm text-cream-300 font-300 mb-3 leading-relaxed" id="resultMainText"></p>
                         <p class="font-display text-4xl md:text-5xl text-gold-500 font-600 leading-none" id="resultNum">0</p>
