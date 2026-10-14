@@ -650,7 +650,7 @@
         var w = rect.width, h = rect.height; ctx.clearRect(0, 0, w, h);
 
         ctx.fillStyle = 'rgba(201, 168, 76, 0.025)';
-        for (var i = 0; i < 160; i++) { ctx.beginPath(); ctx.arc(Math.random() * w, Math.random() * h, Math.random() * 1.5 + 0.3, 0, Math.PI * 2); ctx.fill(); }
+        for (var i = 0; i < 360; i++) { ctx.beginPath(); ctx.arc(Math.random() * w, Math.random() * h, Math.random() * 1.5 + 0.3, 0, Math.PI * 2); ctx.fill(); }
 
         var pad = 50, maxW = w - pad * 2, maxH = h - pad * 2, aspect = state.width / state.height, pW, pH;
         if (aspect > maxW / maxH) { pW = maxW; pH = maxW / aspect; } else { pH = maxH; pW = maxH * aspect; }
