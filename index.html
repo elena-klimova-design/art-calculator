@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elena Klimova | Расчет стоимости картины</title>
+    
+    <link rel="icon" href="icon.jpg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: { 900: '#0b0f19', 800: '#131927', 700: '#1a2035', 600: '#212b42' },
+                        gold: { 300: '#e8d590', 400: '#e2c76a', 500: '#c9a84c', 600: '#a8883a' },
+                        cream: { 100: '#f5f0e8', 200: '#ede4d3', 300: '#d4c9b4', 400: '#a89b84' }
+                    },
+                    fontFamily: {
+                        display: ['"Cormorant Garamond"', 'serif'],
+                        body: ['"Raleway"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --bg: #0b0f19;
+            --bg-card: #1a2035;
+            --fg: #ede4d3;
+            --fg-muted: #a89b84;
+            --accent: #c9a84c;
+            --accent-light: #e2c76a;
+            --border: rgba(201, 168, 76, 0.15);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Raleway', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            overflow-x: hidden;
+        }
+
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+
+        .hero {
+            position: relative;
+            min-height: 70vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            padding-bottom: 60px;
+        }
+
+        .hero-bg {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center 30%;
+            filter: brightness(0.45) saturate(0.9);
+            transform: scale(1.08);
+            transition: transform 0.1s linear;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg,
+                rgba(11,15,25,0.35) 0%,
+                rgba(11,15,25,0.15) 35%,
+                rgba(11,15,25,0.55) 75%,
+                rgba(11,15,25,0.95) 100%);
+        }
+
+        .hero-title { text-shadow: 0 2px 30px rgba(11,15,25,0.7), 0 0 60px rgba(11,15,25,0.4); }
+        .hero-subtitle { text-shadow: 0 1px 16px rgba(11,15,25,0.6); }
+
+        .gold-line {
+            width: 72px; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            margin: 0 auto;
+        }
+
+        .diamond {
+            width: 8px; height: 8px;
+            background: var(--accent);
+            transform: rotate(45deg);
+            margin: 0 auto;
+        }
+
+        .stepper { display: flex; align-items: center; gap: 10px; }
+
+        .stepper-btn {
+            width: 46px; height: 46px;
+            border: 1px solid var(--border);
+            background: rgba(201, 168, 76, 0.04);
+            color: var(--accent);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .stepper-btn:hover:not(:disabled) {
+            background: rgba(201, 168, 76, 0.15);
+            border-color: var(--accent);
+            transform: scale(1.08);
+        }
+
+        .stepper-btn:active:not(:disabled) { transform: scale(0.95); }
+        .stepper-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+        .stepper-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+        .stepper-val {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 32px; font-weight: 600;
+            color: var(--fg);
+            min-width: 52px; text-align: center; line-height: 1;
+        }
+
+        .stepper-unit { font-size: 13px; color: var(--fg-muted); font-weight: 300; letter-spacing: 0.5px; }
+
+        .radio-card {
+            position: relative;
+            padding: 18px 20px;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            background: rgba(26, 32, 53, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex; align-items: center; gap: 14px;
+            user-select: none;
+        }
+
+        .radio-card:hover { border-color: rgba(201, 168, 76, 0.35); background: rgba(26, 32, 53, 0.7); }
+
+        .radio-card.active {
+            border-color: var(--accent);
+            background: rgba(201, 168, 76, 0.07);
+            box-shadow: 0 0 24px rgba(201, 168, 76, 0.08), inset 0 0 24px rgba(201, 168, 76, 0.03);
+        }
+
+        .radio-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+        .radio-dot {
+            width: 22px; height: 22px;
+            border: 2px solid var(--fg-muted);
+            border-radius: 50%;
+            flex-shrink: 0;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .radio-card.active .radio-dot { border-color: var(--accent); }
+
+        .radio-card.active .radio-dot::after {
+            content: ''; position: absolute; inset: 4px;
+            background: var(--accent); border-radius: 50%;
+            animation: dotPop 0.3s ease;
+        }
+
+        @keyframes dotPop {
+            0% { transform: scale(0); }
+            60% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .preview-wrap {
+            position: relative;
+            background: radial-gradient(ellipse at center, rgba(26,32,53,0.8) 0%, rgba(11,15,25,0.9) 100%);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+        }
+
+        .result-box {
+            background: linear-gradient(135deg, rgba(201, 168, 76, 0.1) 0%, rgba(201, 168, 76, 0.02) 100%);
+            border: 1px solid rgba(201, 168, 76, 0.3);
+            border-radius: 16px;
+            padding: 28px 24px;
+            text-align: center;
+            max-height: 0; overflow: hidden; opacity: 0;
+            transform: translateY(12px);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .result-box.visible { max-height: 300px; opacity: 1; transform: translateY(0); }
+
+        .result-hint { margin-top: 16px; padding-top: 14px; border-top: 1px solid rgba(201, 168, 76, 0.15); }
+
+        .codeword {
+            display: inline-block;
+            background: rgba(201, 168, 76, 0.12);
+            border: 1px solid rgba(201, 168, 76, 0.3);
+            border-radius: 6px;
+            padding: 2px 10px;
+            font-weight: 600; letter-spacing: 1px;
+            color: var(--accent-light);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #c9a84c 0%, #e2c76a 100%);
+            color: #0b0f19; font-weight: 600;
+            padding: 15px 40px; border-radius: 50px; border: none;
+            cursor: pointer; font-family: 'Raleway', sans-serif;
+            font-size: 15px; transition: all 0.3s ease;
+            letter-spacing: 0.8px; text-transform: uppercase;
+            position: relative; overflow: hidden;
+        }
+
+        .btn-primary::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%);
+            transform: translateX(-100%); transition: transform 0.5s ease;
+        }
+
+        .btn-primary:hover::after { transform: translateX(100%); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(201, 168, 76, 0.35); }
+        .btn-primary:active { transform: translateY(0); }
+        .btn-primary:focus-visible { outline: 2px solid var(--accent-light); outline-offset: 3px; }
+
+        .btn-secondary {
+            background: transparent; color: var(--accent); font-weight: 500;
+            padding: 15px 36px; border-radius: 50px;
+            border: 1px solid rgba(201, 168, 76, 0.4);
+            cursor: pointer; font-family: 'Raleway', sans-serif;
+            font-size: 15px; transition: all 0.3s ease;
+            letter-spacing: 0.8px; text-transform: uppercase;
+        }
+
+        .btn-secondary:hover { background: rgba(201, 168, 76, 0.08); border-color: var(--accent); transform: translateY(-2px); }
+        .btn-secondary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+        .order-link {
+            display: flex; align-items: center; gap: 14px;
+            padding: 18px 24px;
+            border: 1px solid var(--border); border-radius: 14px;
+            background: rgba(26, 32, 53, 0.35);
+            color: var(--fg); text-decoration: none;
+            transition: all 0.3s ease; font-size: 15px; font-weight: 400;
+        }
+
+        .order-link:hover {
+            border-color: var(--accent); background: rgba(201, 168, 76, 0.06);
+            transform: translateX(6px); box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        .order-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+        .order-link .link-icon {
+            width: 40px; height: 40px; border-radius: 10px;
+            background: rgba(201, 168, 76, 0.1);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--accent); font-size: 18px; flex-shrink: 0;
+            transition: all 0.3s ease;
+        }
+
+        .order-link:hover .link-icon { background: rgba(201, 168, 76, 0.2); }
+
+        .incl-item {
+            display: flex; gap: 16px; align-items: flex-start;
+            padding: 18px 0; border-bottom: 1px solid rgba(201, 168, 76, 0.06);
+            transition: all 0.3s ease;
+        }
+
+        .incl-item:last-child { border-bottom: none; }
+        .incl-item:hover { padding-left: 6px; }
+
+        .incl-icon {
+            width: 38px; height: 38px; border-radius: 50%;
+            background: rgba(201, 168, 76, 0.08);
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; color: var(--accent); font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .incl-item:hover .incl-icon { background: rgba(201, 168, 76, 0.18); transform: scale(1.1); }
+
+        #particles { position: fixed; inset: 0; pointer-events: none; z-index: 1; }
+
+        .reveal { opacity: 0; transform: translateY(28px); transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1); }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        .glow { position: absolute; border-radius: 50%; filter: blur(90px); pointer-events: none; }
+
+        .scroll-hint {
+            position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%);
+            display: flex; flex-direction: column; align-items: center; gap: 6px;
+            color: var(--accent); cursor: pointer;
+            animation: hintFloat 2.4s ease-in-out infinite;
+        }
+
+        @keyframes hintFloat {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-7px); }
+        }
+
+        .calc-card {
+            background: rgba(26,32,53,0.65);
+            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--border); border-radius: 28px; padding: 36px 28px;
+            box-shadow: 0 24px 80px rgba(0,0,0,0.35), 0 0 60px rgba(201,168,76,0.04);
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+            .hero-bg { transform: none !important; }
+            .result-box { transition: none; }
+        }
+
+        @media (max-width: 640px) {
+            .hero { min-height: 60vh; padding-bottom: 52px; }
+            .stepper-val { font-size: 26px; }
+            .stepper-btn { width: 42px; height: 42px; }
+            .calc-card { padding: 24px 18px; border-radius: 20px; }
+            .result-box.visible { max-height: 360px; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="particles" aria-hidden="true"></canvas>
+
+    <header class="hero" id="hero">
+        <div class="hero-bg" id="heroBg"></div>
+        <div class="hero-overlay"></div>
+        <div class="relative z-10 text-center px-6 max-w-3xl mx-auto" style="margin-top:-20px;">
+            <p id="brandLogo" class="font-body text-gold-500 tracking-[0.35em] text-xs sm:text-sm uppercase mb-5 font-500 hero-subtitle"></p>
+            <h1 class="font-display text-4xl sm:text-5xl md:text-7xl text-cream-100 font-300 leading-[1.1] mb-6 hero-title">
+                Расчёт стоимости<br>картины
+            </h1>
+            <div class="gold-line mb-5"></div>
+            <p id="brandTagline" class="font-body text-cream-300 text-base sm:text-lg font-300 max-w-sm mx-auto leading-relaxed hero-subtitle"></p>
+        </div>
+        <a href="#calculator" class="scroll-hint" aria-label="Перейти к калькулятору">
+            <span class="text-[10px] font-body tracking-[0.2em] uppercase">Калькулятор</span>
+            <i class="fas fa-chevron-down text-xs"></i>
+        </a>
+    </header>
+
+    <main>
+        <section class="relative py-14 md:py-24 px-4" id="calculator">
+            <div class="glow" style="width:320px;height:320px;background:rgba(201,168,76,0.12);top:-80px;right:-60px;"></div>
+            <div class="glow" style="width:220px;height:220px;background:rgba(45,107,94,0.12);bottom:-40px;left:-40px;"></div>
+
+            <div class="max-w-2xl mx-auto relative z-10">
+                <div class="calc-card reveal">
+
+                    <div class="text-center mb-8">
+                        <div class="diamond mb-4"></div>
+                        <h2 class="font-display text-3xl md:text-4xl text-cream-100 font-300 mb-1">Калькулятор</h2>
+                        <p class="text-cream-400 text-sm font-300">Укажите параметры и узнайте стоимость</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-7">
+                        <div>
+                            <label class="block text-[11px] text-cream-400 font-400 mb-3 tracking-[0.15em] uppercase">Ширина</label>
+                            <div class="stepper">
+                                <button class="stepper-btn" id="wMinus" aria-label="Уменьшить ширину"><i class="fas fa-minus text-xs"></i></button>
+                                <span class="stepper-val" id="wVal">50</span>
+                                <span class="stepper-unit">см</span>
+                                <button class="stepper-btn" id="wPlus" aria-label="Увеличить ширину"><i class="fas fa-plus text-xs"></i></button>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-cream-400 font-400 mb-3 tracking-[0.15em] uppercase">Высота</label>
+                            <div class="stepper">
+                                <button class="stepper-btn" id="hMinus" aria-label="Уменьшить высоту"><i class="fas fa-minus text-xs"></i></button>
+                                <span class="stepper-val" id="hVal">50</span>
+                                <span class="stepper-unit">см</span>
+                                <button class="stepper-btn" id="hPlus" aria-label="Увеличить высоту"><i class="fas fa-plus text-xs"></i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="preview-wrap mb-7" id="previewWrap" style="aspect-ratio:16/9;">
+                        <canvas id="previewCanvas" style="width:100%;height:100%;display:block;"></canvas>
+                    </div>
+
+                    <div class="mb-7">
+                        <label class="block text-[11px] text-cream-400 font-400 mb-3 tracking-[0.15em] uppercase">Количество полотен</label>
+                        <div class="stepper">
+                            <button class="stepper-btn" id="qMinus" aria-label="Уменьшить количество"><i class="fas fa-minus text-xs"></i></button>
+                            <span class="stepper-val" id="qVal">1</span>
+                            <span class="stepper-unit">шт</span>
+                            <button class="stepper-btn" id="qPlus" aria-label="Увеличить количество"><i class="fas fa-plus text-xs"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="mb-8">
+                        <label class="block text-[11px] text-cream-400 font-400 mb-3 tracking-[0.15em] uppercase">Глубина рельефа</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="reliefContainer"></div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row gap-3 justify-center mb-7">
+                        <button class="btn-primary" id="calcBtn">Рассчитать</button>
+                        <button class="btn-secondary" id="resetBtn">Обновить</button>
+                    </div>
+
+                    <div class="result-box" id="resultBox" role="status" aria-live="polite">
+                        <p class="text-sm text-cream-300 font-300 mb-3 leading-relaxed" id="resultMainText"></p>
+                        <p class="font-display text-4xl md:text-5xl text-gold-500 font-600 leading-none" id="resultNum">0</p>
+                        <p class="text-sm text-gold-500 font-300 mt-2 tracking-wide" id="resultCurrency"></p>
+                        <div class="result-hint">
+                            <p class="text-xs text-cream-300 font-300 leading-relaxed" id="resultHintText"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="relative py-14 md:py-24 px-4" id="included">
+            <div class="max-w-2xl mx-auto relative z-10 reveal">
+                <div class="text-center mb-10">
+                    <div class="diamond mb-4"></div>
+                    <h2 class="font-display text-3xl md:text-4xl text-cream-100 font-300 mb-2">Всё включено под ключ</h2>
+                    <div class="gold-line"></div>
+                </div>
+                <div id="includedContainer" style="background:rgba(26,32,53,0.45);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:22px;padding:8px 28px;"></div>
+                <div class="text-center mt-9">
+                    <div class="inline-flex items-center gap-3 px-6 py-3 rounded-full" style="background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.15);">
+                        <i class="fas fa-clock text-gold-500 text-sm"></i>
+                        <p id="deliveryTime" class="font-display text-xl text-gold-500 font-400"></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="relative py-14 md:py-24 px-4" id="order">
+            <div class="glow" style="width:250px;height:250px;background:rgba(201,168,76,0.08);top:0;left:50%;transform:translateX(-50%);"></div>
+            <div class="max-w-lg mx-auto relative z-10 reveal">
+                <div class="text-center mb-10">
+                    <div class="diamond mb-4"></div>
+                    <h2 class="font-display text-3xl md:text-4xl text-cream-100 font-300 mb-2">Сделать заказ</h2>
+                    <div class="gold-line"></div>
+                </div>
+                <div class="flex flex-col gap-3" id="orderContainer"></div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="relative py-8 px-4" style="border-top:1*solid var(--border);">
+        <div class="max-w-3xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 text-center sm:text-left">
+            <p id="footerBrand" class="font-display text-lg text-cream-300 font-400"></p>
+            <p id="footerPhone" class="text-xs text-cream-400 font-300 tracking-wide"></p>
+        </div>
+    </footer>
+
+    <script>
+    /* ===========================================================
+       НАСТРОЙКИ — меняйте значения здесь, остальное не трогайте
+       =========================================================== */
+    var CONFIG = {
+
+        /* Размеры (в см) */
+        size: {
+            min: 40,           /* минимальный размер */
+            max: 120,          /* максимальный размер */
+            step: 10,          /* шаг изменения */
+            defaultWidth: 50,  /* ширина по умолчанию */
+            defaultHeight: 50  /* высота по умолчанию */
+        },
+
+        /* Количество полотен */
+        qty: { min: 1, max: 4, default: 1 },
+
+        /* Глубина рельефа */
+        relief: {
+            default: 'bare',
+            options: [
+                { id: 'micro', name: 'Микрорельеф', description: '0,1 — 0,2 см', k: 1.1 },
+                { id: 'bare',  name: 'Барельеф',    description: '0,3 — 1 см',   k: 1.4 }
+            ]
+        },
+
+        /* Формулы расчёта */
+        formula: {
+            coeff1: 85,      /* (W+H) × coeff1 × k  — если обе стороны ≤ threshold */
+            coeff2: 3.3,     /* W × H × coeff2 × k   — если хотя бы одна сторона > threshold */
+            threshold: 50    /* порог переключения формул */
+        },
+
+        /* Округление */
+        rounding: { step: 500 },
+
+        /* Тексты результата */
+        resultText: {
+            main: 'Ориентировочный расчёт общей стоимости картин',
+            currency: 'рублей',
+            hint: 'Со скидкой, если вы напишете в сообщении кодовое слово {codeword} и укажите размеры',
+            codeword: 'КАЛЬКУЛЯТОР'
+        },
+
+        /* Бренд */
+        brand: {
+            name: 'Elena Klimova',
+            tagline: 'Картины, меняющие пространство',
+            logo: 'Elena Klimova | Art',
+            phone: '+7 909 377 44 39',
+            phoneLink: 'tel:+79093774439'
+        },
+
+        /* Ссылки для заказа */
+        orderLinks: [
+            { label: 'Сделать заказ в Max',       url: 'https://max.ru/u/f9LHodD0cOJWfA-Q-Q1qiraUO2iPonIovxxzkchBP7YxNrtzrNHwrY5tEOQ', icon: 'fas fa-shopping-bag' },
+            { label: 'Сделать заказ в Telegram',   url: 'https://t.me/ElenaKlimovaTelegram', icon: 'fab fa-telegram' },
+            { label: 'Сделать заказ в VK',         url: 'https://vk.me/elena_klimova_art',   icon: 'fab fa-vk' }
+        ],
+
+        /* Что входит в стоимость */
+        includedItems: [
+            { icon: 'fas fa-palette',       text: 'Разработка индивидуального эскиза под палитру вашего интерьера' },
+            { icon: 'fas fa-hand-sparkles', text: 'Нанесение ручного многослойного барельефа специализированными пастами' },
+            { icon: 'fas fa-paint-brush',   text: 'Деликатное нанесение интерьерных красок и премиальной потали' },
+            { icon: 'fas fa-shield-halved', text: 'Покрытие 3 слоями защитного лака (абсолютная защита от ультрафиолета и пыли)' },
+            { icon: 'fas fa-box-open',      text: 'Надёжная галерейная упаковка для безопасной транспортировки' }
+        ],
+
+        /* Срок исполнения */
+        deliveryTime: '14 дней',
+
+        /* Фоновое изображение героя.
+           Положите hero.jpg рядом с index.html на Netlify */
+        heroImage: 'hero.jpg',
+
+        /* Аналитика (Google Таблицы).
+           Чтобы включить: enabled: true, вставьте URL веб-приложения */
+        analytics: { enabled: false, webhookUrl: '', trackPageview: true }
+    };
+
+    /* ===========================================================
+       ДАЛЬШЕ — КОД, ТРОГАТЬ НЕ НУЖНО
+       =========================================================== */
+    var C = CONFIG;
+
+    /* Бренд */
+    document.getElementById('brandLogo').textContent = C.brand.logo;
+    document.getElementById('brandTagline').textContent = C.brand.tagline;
+    document.getElementById('footerBrand').textContent = C.brand.logo;
+    document.getElementById('footerPhone').innerHTML =
+        'Доставка по России &nbsp;<a href="' + C.brand.phoneLink + '" class="text-gold-500 hover:text-gold-400 transition-colors">' + C.brand.phone + '</a>';
+
+    /* Герой — фон */
+    document.getElementById('heroBg').style.backgroundImage = "url('" + C.heroImage + "')";
+
+    /* Срок */
+    document.getElementById('deliveryTime').textContent = 'Срок исполнения — ' + C.deliveryTime;
+
+    /* Что включено */
+    var inclContainer = document.getElementById('includedContainer');
+    C.includedItems.forEach(function(item) {
+        var div = document.createElement('div');
+        div.className = 'incl-item';
+        div.innerHTML = '<div class="incl-icon"><i class="' + item.icon + '"></i></div><p class="text-sm text-cream-200 font-300 leading-relaxed">' + item.text + '</p>';
+        inclContainer.appendChild(div);
+    });
+
+    /* Ссылки заказа */
+    var orderContainer = document.getElementById('orderContainer');
+    C.orderLinks.forEach(function(link) {
+        var a = document.createElement('a');
+        a.href = link.url; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.className = 'order-link';
+        a.innerHTML = '<div class="link-icon"><i class="' + link.icon + '"></i></div><span class="font-400">' + link.label + '</span><i class="fas fa-arrow-right ml-auto text-xs text-cream-400"></i>';
+        orderContainer.appendChild(a);
+    });
+
+    /* Результат — тексты */
+    document.getElementById('resultMainText').textContent = C.resultText.main;
+    document.getElementById('resultCurrency').textContent = C.resultText.currency;
+    document.getElementById('resultHintText').innerHTML = C.resultText.hint.replace('{codeword}', '<span class="codeword">' + C.resultText.codeword + '</span>');
+
+    /* Рельеф */
+    var reliefContainer = document.getElementById('reliefContainer');
+    var reliefMap = {};
+    C.relief.options.forEach(function(opt) {
+        reliefMap[opt.id] = opt;
+        var card = document.createElement('div');
+        card.className = 'radio-card' + (opt.id === C.relief.default ? ' active' : '');
+        card.id = 'relief-' + opt.id;
+        card.setAttribute('role', 'radio');
+        card.setAttribute('aria-checked', opt.id === C.relief.default ? 'true' : 'false');
+        card.setAttribute('tabindex', '0');
+        card.innerHTML = '<div class="radio-dot"></div><div><div class="text-sm font-500 text-cream-200">' + opt.name + '</div><div class="text-xs text-cream-400 font-300 mt-0.5">' + opt.description + '</div></div>';
+        reliefContainer.appendChild(card);
+        card.addEventListener('click', function() { setRelief(opt.id); });
+        card.addEventListener('keydown', function(e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); } });
+    });
+
+    /* Состояние */
+    var state = { width: C.size.defaultWidth, height: C.size.defaultHeight, qty: C.qty.default, relief: C.relief.default };
+
+    /* DOM */
+    var $ = function(id) { return document.getElementById(id); };
+    var els = {
+        wVal: $('wVal'), hVal: $('hVal'), qVal: $('qVal'),
+        wMinus: $('wMinus'), wPlus: $('wPlus'),
+        hMinus: $('hMinus'), hPlus: $('hPlus'),
+        qMinus: $('qMinus'), qPlus: $('qPlus'),
+        resultBox: $('resultBox'), resultNum: $('resultNum'),
+        previewCanvas: $('previewCanvas'), previewWrap: $('previewWrap'),
+        heroBg: $('heroBg')
+    };
+
+    /* Степперы */
+    function adjust(param, delta, min, max) { var next = state[param] + delta; if (next >= min && next <= max) state[param] = next; updateUI(); }
+    els.wMinus.addEventListener('click', function() { adjust('width', -C.size.step, C.size.min, C.size.max); });
+    els.wPlus.addEventListener('click',  function() { adjust('width',  C.size.step, C.size.min, C.size.max); });
+    els.hMinus.addEventListener('click', function() { adjust('height', -C.size.step, C.size.min, C.size.max); });
+    els.hPlus.addEventListener('click',  function() { adjust('height',  C.size.step, C.size.min, C.size.max); });
+    els.qMinus.addEventListener('click', function() { adjust('qty', -1, C.qty.min, C.qty.max); });
+    els.qPlus.addEventListener('click',  function() { adjust('qty',  1, C.qty.min, C.qty.max); });
+
+    /* Рельеф */
+    function setRelief(id) { state.relief = id; updateUI(); }
+
+    /* UI */
+    function updateUI() {
+        els.wVal.textContent = state.width; els.hVal.textContent = state.height; els.qVal.textContent = state.qty;
+        els.wMinus.disabled = state.width <= C.size.min; els.wPlus.disabled = state.width >= C.size.max;
+        els.hMinus.disabled = state.height <= C.size.min; els.hPlus.disabled = state.height >= C.size.max;
+        els.qMinus.disabled = state.qty <= C.qty.min; els.qPlus.disabled = state.qty >= C.qty.max;
+        C.relief.options.forEach(function(opt) {
+            var card = $('relief-' + opt.id); var isActive = state.relief === opt.id;
+            card.classList.toggle('active', isActive); card.setAttribute('aria-checked', isActive);
+        });
+        drawPreview();
+    }
+
+    /* Превью */
+    function drawPreview() {
+        var canvas = els.previewCanvas, wrap = els.previewWrap;
+        var dpr = window.devicePixelRatio || 1, rect = wrap.getBoundingClientRect();
+        canvas.width = Math.round(rect.width * dpr); canvas.height = Math.round(rect.height * dpr);
+        var ctx = canvas.getContext('2d'); ctx.scale(dpr, dpr);
+        var w = rect.width, h = rect.height; ctx.clearRect(0, 0, w, h);
+
+        ctx.fillStyle = 'rgba(201, 168, 76, 0.025)';
+        for (var i = 0; i < 160; i++) { ctx.beginPath(); ctx.arc(Math.random() * w, Math.random() * h, Math.random() * 1.5 + 0.3, 0, Math.PI * 2); ctx.fill(); }
+
+        var pad = 50, maxW = w - pad * 2, maxH = h - pad * 2, aspect = state.width / state.height, pW, pH;
+        if (aspect > maxW / maxH) { pW = maxW; pH = maxW / aspect; } else { pH = maxH; pW = maxH * aspect; }
+        var px = (w - pW) / 2, py = (h - pH) / 2;
+
+        var grad = ctx.createLinearGradient(px, py, px + pW, py + pH);
+        grad.addColorStop(0, '#181e30'); grad.addColorStop(0.5, '#1f2840'); grad.addColorStop(1, '#181e30');
+        ctx.fillStyle = grad; ctx.fillRect(px, py, pW, pH);
+
+        var curRel = reliefMap[state.relief], isBare = curRel.id !== C.relief.options[0].id;
+        var lineCount = isBare ? 18 : 32, amp = isBare ? 10 : 3;
+        ctx.strokeStyle = isBare ? 'rgba(201, 168, 76, 0.1)' : 'rgba(201, 168, 76, 0.06)'; ctx.lineWidth = isBare ? 1.5 : 0.8;
+        for (var i = 0; i < lineCount; i++) { ctx.beginPath(); var bY = py + (pH / lineCount) * i + Math.random() * 4; for (var j = 0; j <= 12; j++) { var lx = px + (pW / 12) * j, ly = bY + Math.sin(j * 0.8 + i) * amp + (Math.random() - 0.5) * amp * 0.5; if (j === 0) ctx.moveTo(lx, ly); else ctx.lineTo(lx, ly); } ctx.stroke(); }
+
+        var fW = 5;
+        ctx.strokeStyle = '#c9a84c'; ctx.lineWidth = fW; ctx.strokeRect(px - fW/2, py - fW/2, pW + fW, pH + fW);
+        ctx.strokeStyle = 'rgba(226,199,106,0.25)'; ctx.lineWidth = 0.8; ctx.strokeRect(px + 3, py + 3, pW - 6, pH - 6);
+        ctx.strokeStyle = 'rgba(201,168,76,0.08)'; ctx.lineWidth = 1; ctx.strokeRect(px - fW - 2, py - fW - 2, pW + fW*2 + 4, pH + fW*2 + 4);
+
+        ctx.fillStyle = '#ede4d3'; ctx.font = '13px Raleway, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+        ctx.fillText(state.width + ' см', px + pW/2, py - fW - 8);
+        ctx.save(); ctx.translate(px + pW + fW + 16, py + pH/2); ctx.rotate(Math.PI/2); ctx.textBaseline = 'middle'; ctx.fillText(state.height + ' см', 0, 0); ctx.restore();
+        ctx.fillStyle = 'rgba(201,168,76,0.5)'; ctx.font = '10px Raleway, sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'top'; ctx.fillText(curRel.name, px + 8, py + 8);
+        if (state.qty > 1) { ctx.fillStyle = 'rgba(201,168,76,0.9)'; ctx.beginPath(); ctx.arc(px+pW-12, py+12, 14, 0, Math.PI*2); ctx.fill(); ctx.fillStyle = '#0b0f19'; ctx.font = 'bold 11px Raleway, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('\u00d7' + state.qty, px+pW-12, py+12); }
+        ctx.fillStyle = 'rgba(201,168,76,0.4)'; ctx.font = '11px Raleway, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+        ctx.fillText(state.width + ' \u00d7 ' + state.height + ' см', px + pW/2, py + pH + fW + 8);
+    }
+
+    /* Аналитика */
+    function sendAnalytics(data) { if (!C.analytics || !C.analytics.enabled || !C.analytics.webhookUrl) return; try { fetch(C.analytics.webhookUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) }); } catch(e){} }
+    if (C.analytics && C.analytics.enabled && C.analytics.trackPageview) { sendAnalytics({ date: new Date().toLocaleString('ru-RU',{timeZone:'Europe/Moscow'}), width:'-', height:'-', qty:'-', relief:'-', price:'-' }); }
+
+    /* Расчёт */
+    $('calcBtn').addEventListener('click', calculate);
+    function calculate() {
+        var k = reliefMap[state.relief].k, perPainting;
+        if (state.width <= C.formula.threshold && state.height <= C.formula.threshold) { perPainting = (state.width + state.height) * C.formula.coeff1 * k; }
+        else { perPainting = state.width * state.height * C.formula.coeff2 * k; }
+        var rawTotal = perPainting * state.qty, total = Math.round(rawTotal / C.rounding.step) * C.rounding.step;
+        els.resultBox.classList.add('visible'); animateNumber(els.resultNum, total, 700);
+        sendAnalytics({ date: new Date().toLocaleString('ru-RU',{timeZone:'Europe/Moscow'}), width: state.width, height: state.height, qty: state.qty, relief: reliefMap[state.relief].name, price: total });
+        setTimeout(function() { els.resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 150);
+    }
+    function animateNumber(el, target, duration) { var start = performance.now(); function tick(now) { var p = Math.min((now-start)/duration,1), e = 1-Math.pow(1-p,3); el.textContent = Math.round(target*e).toLocaleString('ru-RU'); if(p<1) requestAnimationFrame(tick); } requestAnimationFrame(tick); }
+
+    /* Сброс */
+    $('resetBtn').addEventListener('click', function() { state = { width: C.size.defaultWidth, height: C.size.defaultHeight, qty: C.qty.default, relief: C.relief.default }; els.resultBox.classList.remove('visible'); els.resultNum.textContent = '0'; updateUI(); });
+
+    /* Частицы */
+    function initParticles() {
+        var canvas = $('particles'), ctx = canvas.getContext('2d'), pR = window.matchMedia('(prefers-reduced-motion: reduce)').matches, count = pR ? 0 : 45, particles = [];
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        function create() { return { x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*2.2+0.4, vx: (Math.random()-0.5)*0.25, vy: (Math.random()-0.5)*0.15-0.08, alpha: Math.random()*0.35+0.08, phase: Math.random()*Math.PI*2, freq: Math.random()*0.015+0.005 }; }
+        function init() { resize(); for(var i=0;i<count;i++) particles.push(create()); }
+        function loop() { ctx.clearRect(0,0,canvas.width,canvas.height); var t=performance.now()*0.001; for(var i=0;i<particles.length;i++){var p=particles[i];p.x+=p.vx;p.y+=p.vy;if(p.x<-20)p.x=canvas.width+20;if(p.x>canvas.width+20)p.x=-20;if(p.y<-20)p.y=canvas.height+20;if(p.y>canvas.height+20)p.y=-20;var f=Math.sin(t*p.freq*60+p.phase)*0.5+0.5,a=p.alpha*f;ctx.beginPath();ctx.arc(p.x,p.y,Math.max(0.1,p.r),0,Math.PI*2);ctx.fillStyle='rgba(201,168,76,'+a.toFixed(3)+')';ctx.fill();if(p.r>1.3){ctx.beginPath();ctx.arc(p.x,p.y,Math.max(0.1,p.r*3.5),0,Math.PI*2);ctx.fillStyle='rgba(201,168,76,'+(a*0.06).toFixed(4)+')';ctx.fill();}} requestAnimationFrame(loop); }
+        window.addEventListener('resize',resize); init(); if(!pR) loop();
+    }
+
+    /* Скролл-анимации */
+    function initReveal() { var o=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting)x.target.classList.add('visible');});},{threshold:0.08,rootMargin:'0px 0px -40px 0px'}); document.querySelectorAll('.reveal').forEach(function(el){o.observe(el);}); }
+
+    /* Параллакс */
+    function initParallax() { var pR=window.matchMedia('(prefers-reduced-motion: reduce)').matches; if(pR)return; var t=false; window.addEventListener('scroll',function(){if(!t){requestAnimationFrame(function(){els.heroBg.style.transform='scale(1.08) translateY('+(window.scrollY*0.12)+'px)';t=false;});t=true;}},{passive:true}); }
+
+    /* Инициализация */
+    document.addEventListener('DOMContentLoaded', function() { updateUI(); initParticles(); initReveal(); initParallax(); var rt; window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(drawPreview,100);}); });
+    </script>
+</body>
+</html>
